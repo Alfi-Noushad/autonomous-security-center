@@ -6,10 +6,12 @@ class LogStream:
     def __init__(self):
         # decode_responses=True forces Redis to return data as strings instead of raw binary bytes
         self.redis = fakeredis.FakeStrictRedis(decode_responses=True)
+        #Clear out any lingering test items from memory immediately on startup
+        self.redis.flushall()
 
     def redpush(self, ip_address: str, log_message: str):
         #convert the ouptut to python dictionary
-        payload = {"ip_address": ip_address,"Log_messsage": log_message}
+        payload = {"ip_address": ip_address,"log_message": log_message}
         # Convert that dictionary into a plain text string 
         serialized_data = json.dumps(payload)
 

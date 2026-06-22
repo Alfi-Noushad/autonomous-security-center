@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 #import the other file
 from stream_queue.log_stream import LogStream
-from database.vector_memory import VectorMemory
-from database.sql_archive import SqlMemory
+from database.vector_memory import vectorMemory
+from database.sql_archive import sql_Memory
 
 #creates the fastapi 
 app = FastAPI(title="Autonomous Security Operations Center (ASOC)",
@@ -12,8 +12,8 @@ app = FastAPI(title="Autonomous Security Operations Center (ASOC)",
 
 #intializes over her
 stream = LogStream()
-vector_store = VectorMemory()
-db = SqlMemory()
+vector_store = vectorMemory()
+db = sql_Memory()
 
 
 #sets up the data validation pydantic
@@ -37,6 +37,8 @@ async def calculate_risk(data: requestAsessment):
     queue_item = stream.redpop()
     if not queue_item:
         return {"status": "Queue processing failed"}
+    
+    print(f"🕵️ DEBUG: What keys are inside queue_item? -> {queue_item.keys()} | Full content: {queue_item}")
     
     #|||step-2: vector search matching
     ai_results = vector_store.analyze_similarity(queue_item["log_message"])
