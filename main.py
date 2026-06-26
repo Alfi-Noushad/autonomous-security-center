@@ -44,17 +44,20 @@ async def calculate_risk(data: requestAsessment):
     ai_results = vector_store.analyze_similarity(queue_item["log_message"])
 
     #takes the closest result and score of it
-    closest_match_text = ai_results['documents'][0][0]
-    distance_score = ai_results['distances'][0][0]
+    closest_match_text = ai_results["closest_known_exploit_profile"]
+    distance_score = ai_results["vector_geometric_distance"]
 
     #|||step-3: decision making
     #intialized
     threat_score = 10.0
     status = "SAFE_TRAFFIC"
 
-    if distance_score < 1.1:
-        threat_score = 94.7
+    if distance_score <= 0.7:
+        threat_score = max(75.0, (1.0 - distance_score) * 100.0)
         status = "CRITICAL_THREAT_DETECTED"
+    else:
+        status = "SAFE_TRAFFIC"
+        threat_score = min(25.0, distance_score * 15.0)
 
     #|||step-4: DB storing 
     db.save_alert(queue_item["ip_address"], queue_item["log_message"], threat_score, status)
@@ -71,7 +74,7 @@ async def calculate_risk(data: requestAsessment):
 if __name__ == "__main__":
     print()
     #runs on this
-    uvicorn.run(app,host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 
 
 
