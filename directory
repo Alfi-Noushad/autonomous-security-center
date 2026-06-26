@@ -1,0 +1,14 @@
+Autonomous-Security-Center/
+│
+├── database/
+│   ├── sql_archive.py      # Handles SQLite table creation and data inserts
+│   └── vector_memory.py    # Handles ChromaDB matching and embedding logic
+│
+├── frontend/
+|   ├── app.py              # Displays the dashboard ui
+|
+├── queue/
+│   └── log_stream.py       # Handles fakeredis pushing and popping logic
+│
+├── main.py                 # The central FastAPI application and routes
+└── requirements.txt        # Your list of python dependencies
