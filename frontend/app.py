@@ -60,7 +60,7 @@ else:
     with chart_col1:
         st.subheader("⚠️ Threat Distribution Breakdown")
         fig_pie = px.pie(df, names='security_status', color='security_status',
-                         color_discrete_map={'CRITICAL_THREAT_DETECTED': '#FF4B4B', 'SAFE_TRAFFIC': '#00CC96'})
+                         color_discrete_map={'CRITICAL_THREAT_DETECTED': '#FF4B4B', 'SUSPICIOUS_ANOMALY': '#FFA500', 'SAFE_TRAFFIC': '#00CC96'})
         st.plotly_chart(fig_pie, use_container_width=True)
 
     with chart_col2:
