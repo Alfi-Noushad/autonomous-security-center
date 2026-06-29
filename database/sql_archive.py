@@ -30,7 +30,7 @@ class sql_Memory():
         # a method we can call from main.py to insert rows into our table
         self.cursor.execute(
             "INSERT INTO security_alerts (ip_address, incident_log, threat_score, security_status) VALUES (?, ?, ?, ?)",
-            (ip, log, score, status)
+            (str(ip), str(log), float(score), str(status))
         )
         self.connection.commit()
         print(f"Alert successfully logged to SQL file for IP: {ip}")
