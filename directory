@@ -11,4 +11,5 @@ Autonomous-Security-Center/
 │   └── log_stream.py       # Handles fakeredis pushing and popping logic
 │
 ├── main.py                 # The central FastAPI application and routes
+├── worker.py       # 
 └── requirements.txt        # Your list of python dependencies
