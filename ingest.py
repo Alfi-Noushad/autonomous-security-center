@@ -41,6 +41,10 @@ def run_ingestion_pipeline():
         # We split by double newlines so the AI gets full context paragraphs instead of broken individual words
         chunks = [chunk.strip() for chunk in raw_text.split("\n\n") if chunk.strip()]
         
+        # FALLBACK: If there are no double newlines, treat the whole file as one single chunk!
+        if not chunks and raw_text.strip():
+            chunks = [raw_text.strip()]
+
         print(f" Split document into {len(chunks)} structural context chunks.")
         
         # Feed each chunk directly into your ChromaDB collection
