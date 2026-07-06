@@ -13,6 +13,7 @@ st.set_page_config(
 
 st.title("🛡️ Autonomous Security Operations Center (ASOC)")
 st.markdown("### Real-Time Security Log Stream & AI Threat Analytics Dashboard")
+st.markdown("---")
 
 # Function to read directly from your local SQL database archive file
 def fetch_security_data():
@@ -21,7 +22,8 @@ def fetch_security_data():
         conn = sqlite3.connect("security_archive.db")
         
         # Read the table directly into a powerful Pandas DataFrame matrix
-        query = "SELECT * FROM security_alerts ORDER BY id DESC"
+        # Removing the 'timestamp' dependency to avoid SQL crashing
+        query = "SELECT id, ip_address, threat_score, security_status, incident_log FROM security_alerts ORDER BY id DESC"
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
@@ -35,7 +37,7 @@ df = fetch_security_data()
 if df.empty:
     st.warning("⚠️ No security alerts found in the SQL database archive yet. Fire some request payloads via your FastAPI endpoint to generate live metrics!")
 else:
-    # 📈 PHASE A: High-Level Metric Layout
+    # 📈 PHASE A: High-Level Metric Layout Summary
     total_logs = len(df)
     critical_threats = len(df[df['security_status'] == 'CRITICAL_THREAT_DETECTED'])
     safe_traffic = len(df[df['security_status'] == 'SAFE_TRAFFIC'])
@@ -46,7 +48,7 @@ else:
     with col1:
         st.metric(label="Total Ingested Logs", value=total_logs)
     with col2:
-        st.metric(label="Critical Threats Identified", value=critical_threats)
+        st.metric(label="🚨 Critical Incidents", value=critical_threats)
     with col3:
         st.metric(label="Safe Traffic Streams", value=safe_traffic)
     with col4:
@@ -54,7 +56,7 @@ else:
 
     st.markdown("---")
 
-    # 📊 PHASE B: Interactive Chart Visualizations
+    # 📊 PHASE B: Interactive Chart Visualizations & Advanced Leaderboard
     chart_col1, chart_col2 = st.columns(2)
 
     with chart_col1:
@@ -64,11 +66,17 @@ else:
         st.plotly_chart(fig_pie, use_container_width=True)
 
     with chart_col2:
-        st.subheader("⚡ Threat Index Score Severity")
-        fig_hist = px.histogram(df, x="threat_score", nbins=10, 
-                                labels={'threat_score':'Threat Index Score (%)'},
-                                color_discrete_sequence=['#636EFA'])
-        st.plotly_chart(fig_hist, use_container_width=True)
+        st.subheader("👑 Top IP Threat Leaderboard")
+        # Aggregating records to count occurrences of bad actors from your real data matrix
+        leaderboard = (
+            df.groupby('ip_address')
+            .size()
+            .reset_index(name='Total Alerts Triggered')
+            .sort_values(by='Total Alerts Triggered', ascending=False)
+            .head(5)
+        )
+        st.dataframe(leaderboard, use_container_width=True, hide_index=True)
+        st.caption("Identifies offending source network origins generating maximum metrics variations.")
 
     st.markdown("---")
 
@@ -76,13 +84,11 @@ else:
     st.subheader("🕵️ Live System Audit Log Ledger")
     st.dataframe(
         df[['id', 'ip_address', 'threat_score', 'security_status', 'incident_log']], 
-        use_container_width=True
+        use_container_width=True,
+        hide_index=True
     )
 
 # 🔄 Quick Dashboard Refresh Control
-if st.button("🔄 Sync Database Records"):
+st.sidebar.markdown("## ⚙️ Control Panel")
+if st.sidebar.button("🔄 Sync Database Records", use_container_width=True):
     st.rerun()
-
-# Temporary diagnostic print at the bottom of frontend/app.py
-print("🕵️ DASHBOARD DEBUG: Current database rows:")
-print(df)
